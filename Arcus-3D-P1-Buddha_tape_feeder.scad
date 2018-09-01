@@ -66,139 +66,192 @@ body_h=base_h+tape_d+top_h;
 // The parts for rendering
 // Uncomment each part here, save, render, then export to STL.
 
-//translate([0,0,body_w/2]) strip_feeder_base();
-//strip_feeder_pick();
-//strip_feeder_peel();
-//strip_feeder_combo();
-strip_feeder_cover();
-//strip_feeder_fill();
-//assembly_view();
+if (0) strip_feeder_pick();
+if (0) strip_feeder_peel();
+if (0) strip_feeder_combo();
+if (0) strip_feeder_cover();
+if (0) strip_feeder_fill();
+if (1) assembly_view();
+if (0) print_all();
+
+module print_all() {
+	translate([0,60,0]) strip_feeder_pick();
+	translate([0,40,0]) strip_feeder_peel();
+	translate([0,20,0]) strip_feeder_combo();
+	translate([0,0,0]) strip_feeder_cover();
+	translate([0,-15,0]) strip_feeder_fill();
+	translate([0,-30,0]) strip_feeder_open();
+	translate([0,-48,body_w/2]) strip_feeder_base();
+}
 
 module assembly_view() {
-	for (i=[0,1]) translate([body_l*i,0,0]) rotate([90,0,0]) strip_feeder_base();
-	translate([0,0,body_h/2+tape_edge_h+top_h/2+extra]) rotate([180,0,0]) strip_feeder_fill();
+	for (i=[1]) translate([body_l*i,0,0]) rotate([90,0,0]) strip_feeder_base();
+	//translate([0,0,body_h/2+tape_edge_h+top_h/2+extra]) rotate([180,0,0]) strip_feeder_fill();
 	translate([body_l,0,body_h/2+tape_edge_h+top_h/2+extra]) rotate([180,0,0]) strip_feeder_combo();
 }
 
 module strip_feeder_base() {
 	// modeled on it's side for printing.
 	difference() {
-		cube([body_l,base_h+tape_d,body_w],center=true);
+		translate([clearance/2,0,0]) cube([body_l-clearance,base_h+tape_d,body_w],center=true);
 		// base cutout
 		translate([0,-body_h/2-extra,0]) rotate([90,0,0]) lego_base(l=body_l/1.6/5 + 1);
+		// lead in
+		translate([0,body_h/2-tape_edge_h/12,-body_w/2+tape_edge_inset-tape_w/2]) rotate([270,0,0]) tape_slot();
+//for (i=[1,-1]) translate([body_l/2*i+clearance/2,(base_h+tape_d)/2+tape_edge_h/8,0]) rotate([0,0,-15*i]) cube([wall_h*4,tape_edge_h,body_w+extra],center=true);
+
 		// below tape area cutout
-		translate([0,base_h/2+extra,body_w/2+tape_edge_inset-(tape_w-tape_hole_inset)/2]) cube([body_l+extra,tape_d,tape_w-tape_hole_inset+extra],center=true);
-		translate([0,body_h/2+tape_edge_h+top_h/2+extra,0]) rotate([90,0,0]) strip_feeder_fill(add=clearance);
+		translate([0,base_h/2+extra,body_w/2+tape_edge_inset-(tape_w-tape_hole_inset)/2]) cube([body_l*1.5+extra,tape_d,tape_w-tape_hole_inset+extra],center=true);
+		translate([0,body_h/2+tape_edge_h+top_h/2+extra,0]) rotate([90,0,0]) pins(add=clearance);
+		// mass cutouts
 		for (i=[0:8:body_l-9]) translate([-body_l/2+12+i,base_h/2-wall_h/2+extra,0]) cube([8-wall_h,tape_d-wall_h,body_w+extra],center=true);
 		translate([-body_l/2+4+clearance,base_h/2-wall_h/2+extra,0]) cube([8-wall_h,tape_d-wall_h,body_w+extra],center=true);
-		translate([-body_l/2+clearance/2,0,0]) cube([clearance,100,100],center=true);
+	}
+}
+
+module strip_feeder_pick_base() {
+	// modeled on it's side for printing.
+	difference() {
+		translate([clearance/2,0,0]) cube([body_l-clearance,base_h+tape_d,body_w],center=true);
+		// base cutout
+		translate([0,-body_h/2-extra,0]) rotate([90,0,0]) lego_base(l=body_l/1.6/5 + 1);
+		// lead in
+		for (i=[1,-1]) translate([body_l/2*i+clearance/2,(base_h+tape_d)/2+tape_edge_h/8,0]) rotate([0,0,-15*i]) cube([wall_h*4,tape_edge_h,body_w+extra],center=true);
+
+		// below tape area cutout
+		translate([0,base_h/2+extra,body_w/2+tape_edge_inset-(tape_w-tape_hole_inset)/2]) cube([body_l*1.5+extra,tape_d,tape_w-tape_hole_inset+extra],center=true);
+		translate([0,body_h/2+tape_edge_h+top_h/2+extra,0]) rotate([90,0,0]) pins(add=clearance);
+		// mass cutouts
+		for (i=[0:8:body_l-9]) translate([-body_l/2+12+i,base_h/2-wall_h/2+extra,0]) cube([8-wall_h,tape_d-wall_h,body_w+extra],center=true);
+		translate([-body_l/2+4+clearance,base_h/2-wall_h/2+extra,0]) cube([8-wall_h,tape_d-wall_h,body_w+extra],center=true);
+		translate([-body_l/2+pick_l_offset,tape_w/2-tape_hole_inset,-tape_edge_h/2+extra]) hull() { 
+			cube([pick_l,tape_w,extra],center=true);
+			translate([0,0,-top_h-extra]) cube([pick_l+wall_h,tape_w+wall_h,extra],center=true);
+		}
 	}
 }
 
 module strip_feeder_fill(add=0) {
 	difference() {
-		translate([0,0,(tape_edge_h+top_h)/2]) union() {
-			cube([body_l,body_w,tape_edge_h+top_h],center=true);
-			for (i=[0:8:body_l-1]) translate([-body_l/2+4+i,-body_w/2+tape_w/2-tape_hole_inset/2,top_h/2+tape_edge_h/2+wall_h/2+add/2]) cylinder(r=wall_h+add,$fn=4,h=wall_h+add+extra,center=true);
+		union() {
+			translate([clearance/2,0,(tape_edge_h+top_h)/2]) cube([body_l-clearance,body_w,tape_edge_h+top_h],center=true);
+			pins(add=add);
 		}
 		translate([0,body_w/2+tape_edge_inset-tape_w/2,top_h+tape_edge_h/2]) {
-			for (i=[0,1]) translate([0,-i*body_w,0]) {
-				cube([body_l+extra,tape_w,tape_edge_h+extra],center=true);
-				translate([0,tape_hole_inset/4,-tape_edge_h/2+extra]) hull() { 
-					cube([body_l,tape_w-tape_hole_inset,extra],center=true);
-					translate([0,0,-top_h-extra]) cube([body_l+extra,tape_w-tape_hole_inset+wall_h,extra],center=true);
-				}
-			}
+			tape_slot();
+			fill_slot();
 		}
-		translate([-body_l/2+clearance/2,0,0]) cube([clearance,100,100],center=true);
+	}
+}
+
+module strip_feeder_open(add=0) {
+	difference() {
+		union() {
+			translate([clearance/2,0,(tape_edge_h+top_h)/2]) cube([body_l-clearance,body_w,tape_edge_h+top_h],center=true);
+			pins(add=add);
+		}
+		translate([0,body_w/2+tape_edge_inset-tape_w/2,top_h+tape_edge_h/2]) {
+			scale([1,1,5]) tape_slot();
+		}
 	}
 }
 
 module strip_feeder_combo(add=0) {
 	difference() {
-		translate([0,0,(tape_edge_h+top_h)/2]) union() {
-			cube([body_l,body_w,tape_edge_h+top_h],center=true);
-			for (i=[0:8:body_l-1]) translate([-body_l/2+4+i,-body_w/2+tape_w/2-tape_hole_inset/2,top_h/2+tape_edge_h/2+wall_h/2+add/2]) cylinder(r=wall_h+add,$fn=4,h=wall_h+add+extra,center=true);
+		union() {
+			translate([clearance/2,0,(tape_edge_h+top_h)/2]) cube([body_l-clearance,body_w,tape_edge_h+top_h],center=true);
+			pins(add=add);
 		}
 		translate([0,body_w/2+tape_edge_inset-tape_w/2,top_h+tape_edge_h/2]) {
-			// peel slot cutout
-			for (i=[0,1]) translate([0,-i*body_w,0]) {
-				cube([body_l+extra,tape_w,tape_edge_h+extra],center=true);
-				translate([-body_l/2+peel_l_offset,tape_edge_inset/2,-top_h/2-tape_edge_h/2]) rotate([0,-45,0]) cube([wall_h*4,tape_w-tape_edge_inset,wall_h],center=true);
-			}
-			// tape slot cutout
-			translate([-body_l/2+pick_l_offset,tape_w/2-tape_hole_inset,-tape_edge_h/2+extra]) hull() { 
-				cube([pick_l,tape_w,extra],center=true);
-				translate([0,0,-top_h-extra]) cube([pick_l+wall_h,tape_w+wall_h,extra],center=true);
-			}
-			translate([-body_l/2+drag_l_offset,0,-tape_edge_h/2+extra]) hull() { 
-				cube([drag_l,tape_w,extra],center=true);
-				translate([0,0,-top_h-extra]) cube([drag_l+wall_h,tape_w+wall_h,extra],center=true);
-			}
+			tape_slot();
+			pick_slot();
+			peel_slot();
 		}
-		translate([-body_l/2+clearance/2,0,0]) cube([clearance,100,100],center=true);
 	}
 }
 
 module strip_feeder_peel(add=0) {
 	difference() {
-		translate([0,0,(tape_edge_h+top_h)/2]) union() {
-			cube([body_l,body_w,tape_edge_h+top_h],center=true);
-			for (i=[0:8:body_l-1]) translate([-body_l/2+4+i,-body_w/2+tape_w/2-tape_hole_inset/2,top_h/2+tape_edge_h/2+wall_h/2+add/2]) cylinder(r=wall_h+add,$fn=4,h=wall_h+add+extra,center=true);
+		union() {
+			translate([clearance/2,0,(tape_edge_h+top_h)/2]) cube([body_l-clearance,body_w,tape_edge_h+top_h],center=true);
+			pins(add=add);
 		}
 		translate([0,body_w/2+tape_edge_inset-tape_w/2,top_h+tape_edge_h/2]) {
-			// peel slot cutout
-			for (i=[0,1]) translate([0,-i*body_w,0]) {
-				cube([body_l+extra,tape_w,tape_edge_h+extra],center=true);
-				translate([-body_l/2+peel_l_offset,tape_edge_inset/2,-top_h/2-tape_edge_h/2]) rotate([0,-45,0]) cube([wall_h*4,tape_w-tape_edge_inset,wall_h],center=true);
-			}
+			tape_slot();
+			peel_slot();
 		}
-		translate([-body_l/2+clearance/2,0,0]) cube([clearance,100,100],center=true);
 	}
 }
+
 module strip_feeder_pick(add=0) {
 	difference() {
-		translate([0,0,(tape_edge_h+top_h)/2]) union() {
-			cube([body_l,body_w,tape_edge_h+top_h],center=true);
-			for (i=[0:8:body_l-1]) translate([-body_l/2+4+i,-body_w/2+tape_w/2-tape_hole_inset/2,top_h/2+tape_edge_h/2+wall_h/2+add/2]) cylinder(r=wall_h+add,$fn=4,h=wall_h+add+extra,center=true);
+		union() {
+			translate([clearance/2,0,(tape_edge_h+top_h)/2]) cube([body_l-clearance,body_w,tape_edge_h+top_h],center=true);
+			pins(add=add);
 		}
 		translate([0,body_w/2+tape_edge_inset-tape_w/2,top_h+tape_edge_h/2]) {
-			for (i=[0,1]) translate([0,-i*body_w,0]) {
-				cube([body_l+extra,tape_w,tape_edge_h+extra],center=true);
-			}
 			// tape slot cutout
-			translate([-body_l/2+pick_l_offset,tape_w/2-tape_hole_inset,-tape_edge_h/2+extra]) hull() { 
-				cube([pick_l,tape_w,extra],center=true);
-				translate([0,0,-top_h-extra]) cube([pick_l+wall_h,tape_w+wall_h,extra],center=true);
-			}
-			translate([-body_l/2+drag_l_offset,0,-tape_edge_h/2+extra]) hull() { 
-				cube([drag_l,tape_w,extra],center=true);
-				translate([0,0,-top_h-extra]) cube([drag_l+wall_h,tape_w+wall_h,extra],center=true);
-			}
+			tape_slot();
+			pick_slot();
 		}
-		translate([-body_l/2+clearance/2,0,0]) cube([clearance,100,100],center=true);
 	}
 }
+
 module strip_feeder_cover(add=0) {
 	difference() {
-		translate([0,0,(tape_edge_h+top_h)/2]) union() {
-			cube([body_l,body_w,tape_edge_h+top_h],center=true);
-			for (i=[0:8:body_l-1]) translate([-body_l/2+4+i,-body_w/2+tape_w/2-tape_hole_inset/2,top_h/2+tape_edge_h/2+wall_h/2+add/2]) cylinder(r=wall_h+add,$fn=4,h=wall_h+add+extra,center=true);
+		// body
+		union() {
+			translate([clearance/2,0,(tape_edge_h+top_h)/2]) cube([body_l-clearance,body_w,tape_edge_h+top_h],center=true);
+			pins(add=add);
 		}
 		translate([0,body_w/2+tape_edge_inset-tape_w/2,top_h+tape_edge_h/2]) {
-			for (i=[0,1]) translate([0,-i*body_w,0]) {
-				cube([body_l+extra,tape_w,tape_edge_h+extra],center=true);
-			}
-			// tape slot cutout
-			translate([-body_l/2+pick_l_offset,tape_w/2-tape_hole_inset,-tape_edge_h/2+extra]) hull() { 
-				cube([pick_l,tape_w,extra],center=true);
-			}
+			tape_slot();
 		}
-		translate([-body_l/2+clearance/2,0,0]) cube([clearance,100,100],center=true);
 	}
 }
 
+module pick_slot(pick_l_offset=pick_l_offset,drag_l_offset=drag_l_offset) {
+	// tape slot cutout
+	translate([-body_l/2+pick_l_offset,tape_w/2-tape_hole_inset,-tape_edge_h/2+extra]) hull() { 
+		cube([pick_l,tape_w,extra],center=true);
+		translate([0,0,-top_h-extra]) cube([pick_l+wall_h,tape_w+wall_h,extra],center=true);
+	}
+	translate([-body_l/2+drag_l_offset,0,-tape_edge_h/2+extra]) hull() { 
+		cube([drag_l,tape_w,extra],center=true);
+		translate([0,0,-top_h-extra]) cube([drag_l+wall_h,tape_w+wall_h,extra],center=true);
+	}
+}
 
+module peel_slot(peel_l_offset=peel_l_offset) {
+	for (i=[0,1]) translate([0,-i*body_w,0]) {
+		cube([body_l+extra,tape_w,tape_edge_h+extra],center=true);
+		translate([-body_l/2+peel_l_offset,tape_edge_inset/2,-top_h/2-tape_edge_h/2]) rotate([0,-45,0]) cube([wall_h*4,tape_w-tape_edge_inset,wall_h],center=true);
+	}
+}
+
+module tape_slot() {
+	for (i=[-1,1]) translate([0,-body_w/2-i*body_w/2,0]) {
+		cube([body_l+extra,tape_w,tape_edge_h+extra],center=true);
+		for (j=[1,-1]) translate([body_l/2*j+clearance/2,0,-tape_edge_h/4]) rotate([0,15*j,0]) cube([wall_h*4,tape_w,tape_edge_h],center=true);
+		for (j=[1,-1]) translate([body_l/2*j+clearance/2,tape_w/2*i,0]) intersection() {
+			rotate([0,0,90+15*i*j]) cube([tape_edge_h/2,wall_h*4,tape_edge_h*2],center=true);
+			rotate([0,15*j,0]) cube([wall_h*4,tape_w,tape_edge_h*1.5],center=true);
+		}
+	}
+}
+
+module fill_slot() {
+	for (i=[0,1]) translate([0,-i*body_w,0]) {
+		translate([0,tape_hole_inset/4,-tape_edge_h/2+extra]) hull() { 
+			cube([body_l,tape_w-tape_hole_inset,extra],center=true);
+			translate([0,0,-top_h-extra]) cube([body_l+extra,tape_w-tape_hole_inset+wall_h,extra],center=true);
+		}
+	}
+}
+
+module pins(add=0) {
+	for (i=[0:8:body_l-1]) translate([-body_l/2+4+i,-body_w/2+tape_w/2-tape_hole_inset/2,top_h+tape_edge_h+wall_h/2+add/2]) cylinder(r2=wall_h+add,r1=wall_h+2*add,$fn=4,h=wall_h+add+extra,center=true);
+}
 
 
 module lego_base(l=12,w=1,holes=0) {
