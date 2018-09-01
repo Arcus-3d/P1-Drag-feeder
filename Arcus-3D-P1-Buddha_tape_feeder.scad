@@ -70,8 +70,9 @@ body_h=base_h+tape_d+top_h;
 //strip_feeder_pick();
 //strip_feeder_peel();
 //strip_feeder_combo();
+strip_feeder_cover();
 //strip_feeder_fill();
-assembly_view();
+//assembly_view();
 
 module assembly_view() {
 	for (i=[0,1]) translate([body_l*i,0,0]) rotate([90,0,0]) strip_feeder_base();
@@ -178,6 +179,25 @@ module strip_feeder_pick(add=0) {
 		translate([-body_l/2+clearance/2,0,0]) cube([clearance,100,100],center=true);
 	}
 }
+module strip_feeder_cover(add=0) {
+	difference() {
+		translate([0,0,(tape_edge_h+top_h)/2]) union() {
+			cube([body_l,body_w,tape_edge_h+top_h],center=true);
+			for (i=[0:8:body_l-1]) translate([-body_l/2+4+i,-body_w/2+tape_w/2-tape_hole_inset/2,top_h/2+tape_edge_h/2+wall_h/2+add/2]) cylinder(r=wall_h+add,$fn=4,h=wall_h+add+extra,center=true);
+		}
+		translate([0,body_w/2+tape_edge_inset-tape_w/2,top_h+tape_edge_h/2]) {
+			for (i=[0,1]) translate([0,-i*body_w,0]) {
+				cube([body_l+extra,tape_w,tape_edge_h+extra],center=true);
+			}
+			// tape slot cutout
+			translate([-body_l/2+pick_l_offset,tape_w/2-tape_hole_inset,-tape_edge_h/2+extra]) hull() { 
+				cube([pick_l,tape_w,extra],center=true);
+			}
+		}
+		translate([-body_l/2+clearance/2,0,0]) cube([clearance,100,100],center=true);
+	}
+}
+
 
 
 
