@@ -41,7 +41,7 @@ post_u=u*5; // this is 8mm.
 // Length of the block
 body_l=post_u*6;
  
-tape_d=2; // max tape depth
+tape_d=8; // max tape depth
 tape_w=8.1;
 tape_edge_inset=.6;
 tape_hole_inset=2.5;
@@ -66,18 +66,17 @@ body_h=base_h+tape_d+top_h;
 // The parts for rendering
 // Uncomment each part here, save, render, then export to STL.
 
-translate([0,0,body_w/2]) strip_feeder_base();
+//translate([0,0,body_w/2]) strip_feeder_base();
 //strip_feeder_pick();
 //strip_feeder_peel();
 //strip_feeder_combo();
 //strip_feeder_fill();
-//assembly_view();
+assembly_view();
 
 module assembly_view() {
-	for (i=[0,1,2]) translate([body_l*i,0,0]) rotate([90,0,0]) strip_feeder_base();
+	for (i=[0,1]) translate([body_l*i,0,0]) rotate([90,0,0]) strip_feeder_base();
 	translate([0,0,body_h/2+tape_edge_h+top_h/2+extra]) rotate([180,0,0]) strip_feeder_fill();
-	translate([body_l,0,body_h/2+tape_edge_h+top_h/2+extra]) rotate([180,0,0]) strip_feeder_peel();
-	translate([body_l*2,0,body_h/2+tape_edge_h+top_h/2+extra]) rotate([180,0,0]) strip_feeder_pick();
+	translate([body_l,0,body_h/2+tape_edge_h+top_h/2+extra]) rotate([180,0,0]) strip_feeder_combo();
 }
 
 module strip_feeder_base() {
