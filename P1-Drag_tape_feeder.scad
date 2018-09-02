@@ -12,7 +12,7 @@
 // Please like my projects if you find them useful.  Thank you.
 
 // global, to become constant, for command line rendering.
-print = "base";
+print = "combo";
 length = 6; // Length in mm =  8 * length 
 depth = 8;
 width = 8;
@@ -255,7 +255,7 @@ module fill_slot() {
 }
 
 module pins(add=0) {
-	for (i=[0:8:block_l-1]) translate([-block_l/2+4+i,-block_w/2+tape_w/2-tape_hole_inset/2,top_h+tape_edge_h+wall_h/2+add/2]) cylinder(r2=wall_h+add,r1=wall_h+2*add,$fn=4,h=wall_h+add+extra,center=true);
+	for (i=[0:8:block_l-1]) translate([-block_l/2+4+i,-block_w/2+tape_w/2-tape_hole_inset/2,top_h+tape_edge_h+wall_h/2+add/2]) cylinder(r2=wall_h+add,r1=wall_h+1.5*add,$fn=4,h=wall_h+add+extra,center=true);
 }
 
 
