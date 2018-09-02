@@ -1,14 +1,15 @@
 ## P1-Drag-tape-feeder
 
-This project is an open source, modular, 3D printable Lego compatible drag feeder. 
+This project is a modular 3D printable Lego compatible drag feeder for pick and place machines. 
 
 ![feeder.png](images/feeder.png)
 
-Lego pins are spaced at exactly 8mm, and this mounting system lets you do half widths which gives you an indexed solution for 4mm widths.  
-This lets you pick any required tape width and quickly build a feeder using a Lego base sheet to match. 
+Lego pins are spaced at exactly 8mm.  SMT tapes come in increments of 4mm. 
+This mounting system is designed to snap to a Lego sheet at full or half widths, which then gives you an indexed solution for 4mm widths.  
+This lets you pick any required tape width and quickly and accurately build a custom feeder, using a Lego base sheet. 
 
 ![parts.png](images/parts.png)
-Each component block is printed as two parts and then snapped together.  The base part controls the tape depth, and the cover parts let you choose what configuration you want.
+Each component block is printed as two parts and then snapped or glued together.  The base controls the maximum tape depth you want to support, and the covers let you choose whatever configuration you want.
 
 The [Arcus-3D-P1 Drag tape feeder](https://hackaday.io/project/160857) is open source hardware. This github repository hosts the [OpenSCAD](http://www.openscad.org) source and the rendered STL images for quick access.
 
