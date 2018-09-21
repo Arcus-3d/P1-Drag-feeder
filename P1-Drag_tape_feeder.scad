@@ -14,7 +14,7 @@
 // global, to become constant, for command line rendering.
 print = false;
 //print = "combo";
-length = 6; // Length in mm =  8 * length 
+length = 8; // Length in mm =  8 * length 
 depth = 8;
 width = 8;
 //////////////////////////////////////////////////////////////
@@ -49,21 +49,23 @@ block_l=post_u*length;
  
 tape_d=depth;
 tape_w=width + clearance;
-tape_edge_inset=.6;
-tape_hole_inset=2.5;
+tape_edge_inset=.75;
+tape_hole_inset=1.75;
+tape_hole_dia=1.5;
 tape_inset_w=tape_w-tape_hole_inset-tape_edge_inset; 
 tape_edge_h=1; // tape edge thickness
 
 peel_l_offset=block_l/6;
 
-pick_l_offset=block_l-post_u*2;
-pick_l=4;
+pick_l_offset=block_l-post_u*3;
+pick_l=tape_w/1.5;
 
-drag_l_offset=pick_l_offset+post_u*1.5;
-drag_l=8;
+drag_l_offset=pick_l_offset+post_u*2;
+drag_l=pick_l+tape_hole_dia*2;
 
 base_h=1.6*2+wall_h;
 top_h=wall_h; 
+top_w=tape_w+4-clearance*2;
 
 block_w=12-clearance;
 block_h=base_h+tape_d+top_h;
@@ -97,9 +99,9 @@ module print_all() {
 module assembly_view() {
 	translate([0,0,block_h/2+tape_edge_h+top_h/2+extra]) rotate([180,0,0]) strip_feeder_pick();
 	translate([0,0,0]) rotate([90,0,0]) strip_feeder_base();
-	translate([0,block_w,block_h/2+tape_edge_h+top_h/2+extra]) rotate([180,0,0]) strip_feeder_combo();
-	translate([-post_u*6,block_w,block_h/2+tape_edge_h+top_h/2+extra]) rotate([180,0,0]) strip_feeder_cover();
-	translate([-post_u*3,block_w,0]) rotate([90,0,0]) strip_feeder_base(l=post_u*12);
+	//translate([0,block_w,block_h/2+tape_edge_h+top_h/2+extra]) rotate([180,0,0]) strip_feeder_combo();
+	//translate([-post_u*6,block_w,block_h/2+tape_edge_h+top_h/2+extra]) rotate([180,0,0]) strip_feeder_cover();
+	//translate([-post_u*3,block_w,0]) rotate([90,0,0]) strip_feeder_base(l=post_u*12);
 }
 
 module strip_feeder_base(l=block_l,w=block_w) {
@@ -111,7 +113,7 @@ module strip_feeder_base(l=block_l,w=block_w) {
 		// lead in
 		translate([0,block_h/2-tape_edge_h/12,-w/2+tape_edge_inset-tape_w/2]) rotate([270,0,0]) tape_slot(l=l);
 		// below tape area cutout
-		translate([0,base_h/2+extra,w/2+tape_edge_inset-(tape_w-tape_hole_inset)/2]) cube([l*1.5+extra,tape_d,tape_w-tape_hole_inset+extra],center=true);
+		#translate([0,base_h/2+extra,w/2+tape_edge_inset-(tape_w-tape_hole_inset-tape_hole_dia)/2]) cube([l*1.1+extra,tape_d,tape_w-tape_hole_inset-tape_hole_dia/2+extra],center=true);
 		translate([0,block_h/2+tape_edge_h+top_h/2+extra,0]) rotate([90,0,0]) pins(l=l,add=clearance);
 		// mass cutouts
 		for (i=[0:8:l-9]) translate([-l/2+12+i,base_h/2-wall_h/2+extra,0]) cube([8-wall_h,tape_d-wall_h,w+extra],center=true);
@@ -168,7 +170,7 @@ module strip_feeder_open(l=block_l,w=block_w) {
 module strip_feeder_combo(l=block_l,w=block_w) {
 	difference() {
 		union() {
-			translate([clearance/2,0,(tape_edge_h+top_h)/2]) cube([l-clearance,w,tape_edge_h+top_h],center=true);
+			translate([clearance/2,0,(tape_edge_h+top_h)/2]) cube([l-clearance,top_w,tape_edge_h+top_h],center=true);
 			pins(l=l);
 		}
 		translate([0,w/2+tape_edge_inset-tape_w/2,top_h+tape_edge_h/2]) {
@@ -182,7 +184,7 @@ module strip_feeder_combo(l=block_l,w=block_w) {
 module strip_feeder_peel(l=block_l,w=block_w) {
 	difference() {
 		union() {
-			translate([clearance/2,0,(tape_edge_h+top_h)/2]) cube([l-clearance,w,tape_edge_h+top_h],center=true);
+			translate([clearance/2,0,(tape_edge_h+top_h)/2]) cube([l-clearance,top_w,tape_edge_h+top_h],center=true);
 			pins(l=l);
 		}
 		translate([0,w/2+tape_edge_inset-tape_w/2,top_h+tape_edge_h/2]) {
@@ -195,7 +197,7 @@ module strip_feeder_peel(l=block_l,w=block_w) {
 module strip_feeder_pick(l=block_l,w=block_w) {
 	difference() {
 		union() {
-			translate([clearance/2,0,(tape_edge_h+top_h)/2]) cube([l-clearance,w,tape_edge_h+top_h],center=true);
+			translate([clearance/2,0,(tape_edge_h+top_h)/2]) cube([l-clearance,top_w,tape_edge_h+top_h],center=true);
 			pins(l=l);
 		}
 		translate([0,w/2+tape_edge_inset-tape_w/2,top_h+tape_edge_h/2]) {
@@ -210,7 +212,7 @@ module strip_feeder_cover(l=block_l,w=block_w,add=0) {
 	difference() {
 		// body
 		union() {
-			translate([clearance/2,0,(tape_edge_h+top_h)/2]) cube([l-clearance,w,tape_edge_h+top_h],center=true);
+			translate([clearance/2,0,(tape_edge_h+top_h)/2]) cube([l-clearance,top_w,tape_edge_h+top_h],center=true);
 			pins(l=l);
 		}
 		translate([0,w/2+tape_edge_inset-tape_w/2,top_h+tape_edge_h/2]) {
@@ -225,21 +227,18 @@ module pick_slot(l=block_l,w=block_w,pick_l_offset=pick_l_offset,drag_l_offset=d
 		cube([pick_l,tape_w,extra],center=true);
 		translate([0,0,-top_h-extra]) cube([pick_l+wall_h,tape_w+wall_h,extra],center=true);
 	}
-	translate([-l/2+drag_l_offset,0,-tape_edge_h/2+extra]) hull() { 
-		cube([drag_l,tape_w,extra],center=true);
-		translate([0,0,-top_h-extra]) cube([drag_l+wall_h,tape_w+wall_h,extra],center=true);
+	translate([-l/2+drag_l_offset,-w/2+top_w/2-tape_w/2+tape_hole_inset,-tape_edge_h/2+extra]) hull() { 
+		cube([drag_l,tape_hole_dia*1.5,extra],center=true);
+		translate([0,0,-top_h-extra]) cube([drag_l+wall_h,tape_hole_dia*1.5+wall_h,extra],center=true);
 	}
 }
 
 module peel_slot(l=block_l,w=block_w,peel_l_offset=peel_l_offset) {
-	for (i=[0,1]) translate([0,-i*w,0]) {
-		cube([l+extra,tape_w,tape_edge_h+extra],center=true);
-		translate([-l/2+peel_l_offset,tape_edge_inset/2,-top_h/2-tape_edge_h/2]) rotate([0,-45,0]) cube([wall_h*4,tape_w-tape_edge_inset,wall_h],center=true);
-	}
+	for (i=[-1,1]) translate([-l/2+peel_l_offset,-w/2-i*top_w/2+tape_hole_inset/2+tape_hole_dia/2,-top_h/2-tape_edge_h/2]) rotate([0,-45,0]) cube([wall_h*4,tape_w-tape_hole_inset-tape_hole_dia/2,wall_h],center=true);
 }
 
 module tape_slot(l=block_l,w=block_w) {
-	for (i=[-1,1]) translate([0,-w/2-i*w/2,0]) {
+	for (i=[-1,1]) translate([0,-w/2-i*top_w/2,0]) {
 		cube([l+extra,tape_w,tape_edge_h+extra],center=true);
 		for (j=[1,-1]) translate([l/2*j+clearance/2,0,-tape_edge_h/4]) rotate([0,15*j,0]) cube([wall_h*4,tape_w,tape_edge_h],center=true);
 		for (j=[1,-1]) translate([l/2*j+clearance/2,tape_w/2*i,0]) intersection() {
@@ -259,7 +258,7 @@ module fill_slot(l=block_l,w=block_w) {
 }
 
 module pins(l=block_l,w=block_w,add=0) {
-	for (i=[0:8:l-1]) translate([-l/2+4+i,-w/2+tape_w/2-tape_hole_inset/2,top_h+tape_edge_h+wall_h/2+add/2]) cylinder(r2=wall_h+add,r1=wall_h+1.5*add,$fn=4,h=wall_h+add+extra,center=true);
+	for (i=[0:8:l-1]) translate([-l/2+4+i,tape_edge_inset-tape_w/2,top_h+tape_edge_h+wall_h/2+add]) cylinder(r2=nozzle_dia*6+add,r1=nozzle_dia*6+1.5*add,$fn=4,h=wall_h+add*2+extra,center=true);
 }
 
 
