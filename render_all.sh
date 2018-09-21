@@ -1,4 +1,7 @@
-rm rendered/*.stl
+git rm rendered/*
+git commit -m "Scripted rendering cleanup"
+git push
+mkdir rendered
 for part in cover fill pick peel combo open base
 do
 	for length in 6 12 24
@@ -19,6 +22,6 @@ do
 		fi
 	done
 done
-git add *
+git add rendered/*
 git commit -m "Scripted part rendering"
 git push
